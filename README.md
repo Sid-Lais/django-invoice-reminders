@@ -33,7 +33,7 @@ A small, complete Django app that sends the invoice and then runs the follow-up 
 | Reminders after the client has paid | **Mark paid** stops everything and sends a receipt. Bounced or spam-flagged addresses are skipped too. |
 | Losing track of who owes what | A tracking table with status, days overdue, the reminders already sent and the next one due |
 
-**Contents:** [Demo](#demo) · [How it works](#how-it-works) · [Features](#features) · [Stack](#stack) · [Prerequisites](#prerequisites) · [Mailtrap setup](#mailtrap-setup) · [Quick start](#quick-start) · [Screenshots](#screenshots) · [Using the dashboard](#using-the-dashboard) · [Using the admin](#using-the-admin) · [Reminder rules](#reminder-rules) · [Key integration points](#key-integration-points) · [Failure behavior](#failure-behavior) · [Security design](#security-design) · [Configuration](#configuration) · [Webhook](#webhook) · [Scheduling](#scheduling) · [Time zones](#time-zones) · [Data model](#data-model) · [Project structure](#project-structure) · [Tests](#tests) · [Deploying](#deploying-to-production) · [Limitations](#limitations) · [FAQ](#faq)
+**Contents:** [Demo](#demo) · [How it works](#how-it-works) · [Features](#features) · [Stack](#stack) · [Prerequisites](#prerequisites) · [Mailtrap setup](#mailtrap-setup) · [Quick start](#quick-start) · [Screenshots](#screenshots) · [Using the dashboard](#using-the-dashboard) · [Using the admin](#using-the-admin) · [Reminder rules](#reminder-rules) · [Key integration points](#key-integration-points) · [Failure behavior](#failure-behavior) · [Security design](#security-design) · [Configuration](#configuration) · [Webhook](#webhook) · [Scheduling](#scheduling) · [Time zones](#time-zones) · [Data model](#data-model) · [Project structure](#project-structure) · [Tests](#tests) · [Deploying](#deploying-to-production) · [Limitations](#limitations) · [FAQ](#faq) · [Contributing](#contributing)
 
 ## Demo
 
@@ -692,6 +692,10 @@ After the API call, update the same row to `sent` or `failed`. Retries update th
 The demo domain `demomailtrap.co` only delivers to the email address that owns the Mailtrap account the API token comes from. Send to that address, or verify your own domain to email anyone.
 
 See [Mailtrap setup](#mailtrap-setup).
+
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to set up the project, run the checks and open a pull request.
 
 ## License
 

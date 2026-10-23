@@ -6,7 +6,12 @@ import pytest
 
 from invoices.models import Invoice, LineItem
 from invoices.services.email import EmailSendError, FakeMailer
-from invoices.services.invoicing import InvoiceStateError, mark_paid, send_invoice, void_invoice
+from invoices.services.invoicing import (
+    InvoiceStateError,
+    mark_paid,
+    send_invoice,
+    void_invoice,
+)
 from invoices.services.pdf import render_invoice_pdf
 
 from .conftest import categories

@@ -5,7 +5,13 @@ from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from invoices.models import Client, Invoice, LineItem, default_time_zone, validate_time_zone
+from invoices.models import (
+    Client,
+    Invoice,
+    LineItem,
+    default_time_zone,
+    validate_time_zone,
+)
 
 DEMO_CLIENT_NAME = "Demo Client"
 

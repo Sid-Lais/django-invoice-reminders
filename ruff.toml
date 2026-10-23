@@ -1,0 +1,11 @@
+target-version = "py312"
+extend-exclude = [".venv", "migrations"]
+
+[lint]
+# E/F/W: pycodestyle + pyflakes, I: import order, B: bugbear, UP: modernise, S: bandit security checks
+select = ["E", "F", "W", "I", "B", "UP", "S"]
+# E501: long lines are left to the author. B905: zip() lengths are matched by construction.
+ignore = ["E501", "B905"]
+
+[lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106"]  # asserts are how pytest works; test credentials are dummy values

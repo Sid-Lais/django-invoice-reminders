@@ -13,7 +13,13 @@ from django.views.decorators.http import require_POST
 from .forms import InvoiceForm
 from .models import Invoice, ReminderLog
 from .services.email import EmailSendError
-from .services.invoicing import InvoiceStateError, mark_paid, resend_invoice, send_invoice, void_invoice
+from .services.invoicing import (
+    InvoiceStateError,
+    mark_paid,
+    resend_invoice,
+    send_invoice,
+    void_invoice,
+)
 from .services.reminders import get_stages
 
 STAGE_LABELS = {

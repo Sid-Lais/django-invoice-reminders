@@ -9,7 +9,14 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 
 from ..models import Invoice
-from .email import EmailAttachment, EmailMessage, EmailSendError, Mailer, SendResult, get_mailer
+from .email import (
+    EmailAttachment,
+    EmailMessage,
+    EmailSendError,
+    Mailer,
+    SendResult,
+    get_mailer,
+)
 from .pdf import render_invoice_pdf
 
 logger = logging.getLogger(__name__)

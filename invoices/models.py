@@ -22,10 +22,10 @@ def default_time_zone() -> str:
 def validate_time_zone(value: str) -> None:
     try:
         zoneinfo.ZoneInfo(value)
-    except (zoneinfo.ZoneInfoNotFoundError, ValueError, TypeError):
+    except (zoneinfo.ZoneInfoNotFoundError, ValueError, TypeError) as err:
         raise ValidationError(
             f"Unknown time zone {value!r}. Use an IANA name such as America/New_York or Europe/Berlin."
-        )
+        ) from err
 
 
 class Client(models.Model):

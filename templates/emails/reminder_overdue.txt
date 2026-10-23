@@ -1,0 +1,8 @@
+{% autoescape off %}Hi {{ client.name }},
+
+We haven't yet received payment for invoice {{ invoice.number }} ({{ total_display }}), which was due on {{ invoice.due_date|date:"j M Y" }} – it is now {{ days_overdue }} day{{ days_overdue|pluralize }} overdue.
+We'd be grateful if you could arrange payment in the next few days.
+
+If something is holding it up – a question about the invoice, or a different payment schedule – just reply to this email and we'll sort it out together.
+
+{% include "emails/_footer.txt" %}{% endautoescape %}

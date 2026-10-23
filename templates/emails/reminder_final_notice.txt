@@ -1,0 +1,9 @@
+{% autoescape off %}Hi {{ client.name }},
+
+Invoice {{ invoice.number }} for {{ total_display }} is now {{ days_overdue }} days overdue (due {{ invoice.due_date|date:"j M Y" }}), and this is our final reminder.
+
+Next steps:
+  1. Please pay the full amount within 7 days, or
+  2. Reply to this email with an expected payment date or any issue with the invoice.
+
+{% include "emails/_footer.txt" %}{% endautoescape %}

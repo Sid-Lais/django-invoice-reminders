@@ -1,0 +1,12 @@
+{% autoescape off %}Hi {{ client.name }},
+
+We received your payment of {{ total_display }} for invoice {{ invoice.number }} on {{ paid_on|date:"j M Y" }}.
+Your invoice is now marked as paid and no further reminders will be sent.
+
+Invoice:     {{ invoice.number }}
+Amount paid: {{ total_display }}
+
+A copy of the invoice is attached as {{ pdf_filename }} for your records.
+
+Thanks,
+{{ business_name }}{% endautoescape %}

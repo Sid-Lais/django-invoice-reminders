@@ -1,0 +1,8 @@
+{% autoescape off %}Invoice:     {{ invoice.number }}
+Due date:    {{ invoice.due_date|date:"j M Y" }}
+Amount:      {{ total_display }}
+
+The invoice is attached as {{ pdf_filename }}.
+
+Thanks,
+{{ business_name }}{% endautoescape %}

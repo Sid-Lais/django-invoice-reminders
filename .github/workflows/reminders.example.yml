@@ -1,0 +1,56 @@
+# EXAMPLE ONLY - rename to reminders.yml to enable.
+#
+# Runs the reminder command every hour on GitHub Actions, so each client is
+# reminded during working hours in their own time zone (REMINDER_SEND_HOURS).
+#
+# !!! IMPORTANT: this needs a PERSISTENT database. !!!
+# A GitHub runner is a fresh VM every time: a SQLite file created here is
+# wiped when the job ends, so there would be no invoices to remind about and
+# no ReminderLog history to stop duplicates. For real use either:
+#   * point the app at a hosted database the runner can reach (change
+#     DATABASES in config/settings.py and add the driver, e.g. psycopg), or
+#   * skip Actions and run the command from cron on the server that hosts
+#     the admin and its database (see README "Scheduling").
+name: payment reminders
+
+on:
+  schedule:
+    # Every hour, at minute 7 (runs at :00 are often delayed). Cron here is UTC.
+    - cron: "7 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (send nothing)"
+        type: boolean
+        default: true
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - run: python -m pip install -r requirements.txt
+      - name: Send payment reminders
+        env:
+          MAILTRAP_API_TOKEN: ${{ secrets.MAILTRAP_API_TOKEN }}
+          MAIL_FROM_EMAIL: ${{ secrets.MAIL_FROM_EMAIL }}
+          MAIL_FROM_NAME: ${{ vars.MAIL_FROM_NAME }}
+          MAILTRAP_WEBHOOK_TOKEN: ${{ secrets.MAILTRAP_WEBHOOK_TOKEN }}
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          TIME_ZONE: Asia/Kolkata
+          REMINDER_SEND_HOURS: "9-18"
+          BUSINESS_NAME: ${{ vars.BUSINESS_NAME }}
+          # Must point at a persistent database - see the note at the top.
+          SQLITE_PATH: ${{ vars.SQLITE_PATH }}
+        run: |
+          python manage.py migrate --noinput
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            python manage.py send_payment_reminders --dry-run
+          else
+            python manage.py send_payment_reminders
+          fi

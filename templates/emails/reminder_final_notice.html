@@ -1,0 +1,13 @@
+{% extends "emails/base.html" %}
+{% block gradient %}background-color:#c62828;background-image:linear-gradient(180deg,#c62828,#7f1d1d);{% endblock %}
+{% block heading %}Final notice: invoice {{ invoice.number }}{% endblock %}
+{% block hero_date %}Was due {{ invoice.due_date|date:"j M Y" }}{% endblock %}
+{% block body %}
+<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Hi {{ client.name }},</p>
+<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Invoice {{ invoice.number }} for <strong>{{ total_display }}</strong> is now <strong>{{ days_overdue }} days overdue</strong> (due {{ invoice.due_date|date:"j M Y" }}), and this is our final reminder.</p>
+<p style="margin:0 0 8px;font-size:15px;line-height:1.55;"><strong>Next steps:</strong></p>
+<ol style="margin:0 0 16px;padding-left:20px;font-size:15px;line-height:1.55;">
+  <li>Please pay the full amount within 7 days, <em>or</em></li>
+  <li>Reply to this email with an expected payment date or any issue with the invoice.</li>
+</ol>
+{% endblock %}

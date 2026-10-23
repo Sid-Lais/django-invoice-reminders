@@ -1,0 +1,235 @@
+{% extends "app/base.html" %}
+{% block title %}Invoices{% endblock %}
+{% block content %}
+{% if messages %}<ul class="msgs">{% for m in messages %}<li class="{{ m.tags }}"><div class="wrap">{{ m }}</div></li>{% endfor %}</ul>{% endif %}
+
+<section class="hero" id="new">
+  <div class="wrap">
+    <div class="intro">
+      <h1>Send the invoice.<br>We chase the payment.</h1>
+      <p class="lead">Enter the invoice name, amount, due date and your client's email. We send the invoice, then remind your client before and after it's due.</p>
+    <svg class="art" viewBox="0 0 680 470" role="img" aria-label="An invoice document for USD 3,540.00, a phone showing the reminder email in the client's inbox, a reminder-sent notification and a payment-received notification">
+      <defs>
+        <filter id="sh" filterUnits="userSpaceOnUse" x="-80" y="-80" width="840" height="640"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#1f3a33" flood-opacity=".18"/></filter>
+        <linearGradient id="warm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b9a6f"/><stop offset="1" stop-color="#066a4c"/></linearGradient>
+      </defs>
+      <rect x="92" y="52" width="500" height="364" rx="46" fill="#e7f5ef" transform="rotate(-5 342 234)"/>
+      <circle cx="74" cy="78" r="30" fill="#cfe9df"/>
+      <circle cx="612" cy="392" r="40" fill="#f4c542" opacity=".38"/>
+
+      <g font-family="Inter,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif">
+        <g transform="rotate(-6 186 244)">
+          <g filter="url(#sh)"><rect x="60" y="78" width="252" height="322" rx="10" fill="#fff"/></g>
+          <rect x="60.5" y="78.5" width="251" height="321" rx="9.5" fill="none" stroke="#e3e8ec"/>
+          <text x="84" y="112" font-size="9.5" letter-spacing="1.8" fill="#6f7b85">INVOICE</text>
+          <text x="84" y="134" font-size="17" font-weight="600" fill="#2b3a42">INV-2026-0012</text>
+          <rect x="262" y="98" width="26" height="26" rx="5" fill="none" stroke="#08845f" stroke-width="2.4"/><path d="M269 106h12M269 111h12M269 116h7" stroke="#08845f" stroke-width="2" stroke-linecap="round"/>
+          <path d="M84 150H288" stroke="#e3e8ec" stroke-width="1.5"/>
+          <text x="84" y="172" font-size="9" letter-spacing="1.4" fill="#8497a1">BILLED TO</text>
+          <text x="84" y="190" font-size="12.5" font-weight="600" fill="#2b3a42">Ananya Rao</text>
+          <text x="200" y="172" font-size="9" letter-spacing="1.4" fill="#8497a1">DUE DATE</text>
+          <text x="200" y="190" font-size="12.5" font-weight="600" fill="#2b3a42">12 Nov 2026</text>
+          <rect x="84" y="210" width="204" height="24" rx="4" fill="#f4f7f9"/>
+          <text x="94" y="226" font-size="10" fill="#6f7b85">Item</text><text x="278" y="226" font-size="10" text-anchor="end" fill="#6f7b85">Amount</text>
+          <text x="94" y="256" font-size="12" fill="#2b3a42">Website redesign</text><text x="278" y="256" font-size="12" text-anchor="end" fill="#2b3a42">3,540.00</text>
+          <text x="94" y="271" font-size="9.5" fill="#8497a1">Qty 1</text>
+          <path d="M84 284H288" stroke="#e3e8ec" stroke-width="1.5"/>
+          <rect x="84" y="302" width="204" height="46" rx="6" fill="#08845f"/>
+          <text x="98" y="330" font-size="11.5" fill="#d8f1e8">Total due</text><text x="276" y="331" font-size="16" font-weight="700" text-anchor="end" fill="#fff">USD 3,540.00</text>
+          <g transform="rotate(-12 232 374)" opacity=".9"><rect x="190" y="360" width="84" height="28" rx="4" fill="none" stroke="#1b5ca8" stroke-width="2.4"/><text x="232" y="380" font-size="15" font-weight="700" letter-spacing="3" text-anchor="middle" fill="#1b5ca8">SENT</text></g>
+        </g>
+
+        <g filter="url(#sh)"><rect x="360" y="32" width="200" height="404" rx="34" fill="#1f2d34"/></g>
+        <rect x="368" y="40" width="184" height="388" rx="28" fill="#fff"/>
+        <rect x="430" y="46" width="60" height="14" rx="7" fill="#0f171b"/>
+        <text x="388" y="76" font-size="10.5" font-weight="600" fill="#2b3a42">9:41</text>
+        <text x="384" y="108" font-size="17" font-weight="700" fill="#2b3a42">Inbox</text>
+        <rect x="384" y="118" width="152" height="22" rx="11" fill="#f1f4f6"/><circle cx="397" cy="129" r="4" fill="none" stroke="#9aa7b0" stroke-width="1.5"/><path d="M400 132l3 3" stroke="#9aa7b0" stroke-width="1.5" stroke-linecap="round"/>
+        <rect x="378" y="150" width="164" height="62" rx="10" fill="#e7f5ef"/>
+        <circle cx="397" cy="170" r="11" fill="#08845f"/><path d="M392.5 166.5h9M392.5 170h9M392.5 173.5h5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+        <text x="414" y="168" font-size="11" font-weight="700" fill="#2b3a42">Invoices</text><text x="534" y="168" font-size="9.5" text-anchor="end" fill="#6f7b85">9:00</text>
+        <text x="390" y="190" font-size="10.5" font-weight="600" fill="#2b3a42">Invoice is due today</text>
+        <text x="390" y="204" font-size="9.5" fill="#6f7b85">USD 3,540.00 · PDF attached</text>
+        <rect x="378" y="224" width="164" height="116" rx="12" fill="url(#warm)"/>
+        <text x="392" y="246" font-size="11.5" font-weight="600" fill="#fff">Invoice INV-2026-0012</text>
+        <text x="392" y="262" font-size="9.5" fill="#d8f1e8">Due 12 Nov 2026</text>
+        <text x="392" y="290" font-size="9.5" fill="#d8f1e8">Amount due</text>
+        <text x="392" y="310" font-size="18" font-weight="700" fill="#fff">USD 3,540.00</text>
+        <rect x="392" y="316" width="68" height="17" rx="8.5" fill="none" stroke="#a9dcc9"/><text x="426" y="328" font-size="9" text-anchor="middle" fill="#fff">PDF attached</text>
+        <rect x="384" y="356" width="152" height="6" rx="3" fill="#e3e8ec"/><rect x="384" y="370" width="112" height="6" rx="3" fill="#e3e8ec"/><rect x="384" y="384" width="130" height="6" rx="3" fill="#e3e8ec"/>
+        <rect x="430" y="414" width="80" height="4" rx="2" fill="#cfd6db"/>
+
+        <g filter="url(#sh)"><rect x="486" y="92" width="184" height="62" rx="12" fill="#fff"/></g>
+        <rect x="486.5" y="92.5" width="183" height="61" rx="11.5" fill="none" stroke="#e8edf0"/>
+        <circle cx="518" cy="123" r="17" fill="#e7f5ef"/>
+        <path d="M518 113.5a7 7 0 0 0-7 7v4.5l-2.5 3.5h19l-2.5-3.5v-4.5a7 7 0 0 0-7-7z" fill="none" stroke="#08845f" stroke-width="2" stroke-linejoin="round"/><path d="M515 132.5a3 3 0 0 0 6 0" fill="none" stroke="#08845f" stroke-width="2" stroke-linecap="round"/>
+        <text x="544" y="119" font-size="12.5" font-weight="600" fill="#2b3a42">Reminder sent</text><text x="544" y="136" font-size="11" fill="#6f7b85">Due in 3 days</text>
+
+        <g filter="url(#sh)"><rect x="228" y="392" width="206" height="62" rx="12" fill="#fff"/></g>
+        <rect x="228.5" y="392.5" width="205" height="61" rx="11.5" fill="none" stroke="#e8edf0"/>
+        <circle cx="260" cy="423" r="17" fill="#08845f"/><path d="M252.2 423.4l5.6 5.6 10-11.4" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="286" y="419" font-size="12.5" font-weight="600" fill="#2b3a42">Payment received</text><text x="286" y="436" font-size="11" fill="#6f7b85">Reminders stopped</text>
+      </g>
+    </svg>
+    </div>
+    <form method="post" action="{% url 'invoice-create' %}" class="card" id="invoice-form" novalidate>
+      {% csrf_token %}
+      <h2>Add an invoice</h2>
+      <p class="muted" style="font-size:14px;margin-bottom:20px">It's emailed to your client and saved below so you can track it.</p>
+      <div class="fields">
+        <p class="group full">Invoice details</p>
+        <div class="field full">
+          <label for="id_name">Invoice name</label>
+          <input type="text" name="name" id="id_name" value="{{ form.name.value|default:'' }}" placeholder="Website redesign, March" maxlength="500" required{% if form.name.errors %} aria-invalid="true"{% endif %}>
+          {% for e in form.name.errors %}<p class="err">{{ e }}</p>{% endfor %}
+        </div>
+        <div class="field">
+          <label for="id_amount">Amount</label>
+          <div class="money{% if form.amount.errors %} invalid{% endif %}">
+            <select name="currency" id="id_currency" aria-label="Currency">
+              {% for code, label in form.currency.field.choices %}<option value="{{ code }}"{% if form.currency.value == code %} selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+            <input type="number" name="amount" id="id_amount" value="{{ form.amount.value|default:'' }}" placeholder="0.00" step="0.01" min="0.01" inputmode="decimal" required{% if form.amount.errors %} aria-invalid="true"{% endif %}>
+          </div>
+          {% for e in form.amount.errors %}<p class="err">{{ e }}</p>{% endfor %}
+        </div>
+        <div class="field">
+          <label for="id_due_date">Due date</label>
+          <input type="date" name="due_date" id="id_due_date" value="{{ form.due_date.value|default:'' }}" required{% if form.due_date.errors %} aria-invalid="true"{% endif %}>
+          {% for e in form.due_date.errors %}<p class="err">{{ e }}</p>{% endfor %}
+        </div>
+        <p class="group full">Client</p>
+        <div class="field full">
+          <label for="id_client_email">Send to (client email)</label>
+          <input type="email" name="client_email" id="id_client_email" value="{{ form.client_email.value|default:'' }}" placeholder="name@company.com" autocomplete="off" required{% if form.client_email.errors %} aria-invalid="true"{% endif %}>
+          {% for e in form.client_email.errors %}<p class="err">{{ e }}</p>{% endfor %}
+        </div>
+        <div class="field full">
+          <label for="id_client_name">Client name <span class="opt-tag">Optional</span></label>
+          <input type="text" name="client_name" id="id_client_name" value="{{ form.client_name.value|default:'' }}" placeholder="Full name" autocomplete="off" maxlength="200">
+        </div>
+        <label class="option full" for="id_send_now">
+          <input type="checkbox" name="send_now" id="id_send_now" value="on"{% if form.send_now.value or not form.is_bound %} checked{% endif %}>
+          <span>Email the invoice now<small>The PDF goes out straight away and reminders follow the schedule. Untick to save it as a draft.</small></span>
+        </label>
+      </div>
+      <button type="submit" class="btn block" id="submit-btn" data-busy="Saving…">Create &amp; send invoice</button>
+    </form>
+  </div>
+</section>
+
+<section class="section alt" id="tracked">
+  <div class="wrap">
+    <h2>Track payments &amp; auto-remind clients</h2>
+    <p class="muted" style="max-width:56ch">{% if stats.total %}You're tracking {{ stats.total }} invoice{{ stats.total|pluralize }}. Reminders go out on their own until each one is paid.{% else %}Every invoice you add is stored here with its status and the reminders already sent.{% endif %}</p>
+
+    <ol class="sched" id="how" aria-label="Reminder schedule">
+      <li><b>1</b><span>Invoice emailed<small>As soon as you add it</small></span></li>
+      {% for s in schedule %}<li><b>{{ forloop.counter|add:1 }}</b><span>{{ s.label }}<small>{{ s.when }}</small></span></li>{% endfor %}
+    </ol>
+
+    <div class="stats">
+      <div class="stat"><small>Tracked invoices</small><b>{{ stats.total }}</b></div>
+      <div class="stat"><small>Outstanding</small>{% if stats.outstanding %}{% for o in stats.outstanding %}<b class="small">{{ o }}</b>{% endfor %}{% else %}<b>0</b>{% endif %}</div>
+      <div class="stat"><small>Overdue</small><b>{{ stats.overdue }}</b></div>
+      <div class="stat"><small>Paid</small><b>{{ stats.paid }}</b></div>
+    </div>
+
+    <div class="table-card">
+    {% if rows %}
+      <div class="toolbar" id="tabs" hidden role="tablist" aria-label="Filter invoices">
+        {% for t in tabs %}{% if t.key == "all" or t.count %}<button type="button" class="tab{% if t.key == 'all' %} on{% endif %}" data-filter="{{ t.key }}" role="tab" aria-selected="{% if t.key == 'all' %}true{% else %}false{% endif %}">{{ t.label }} <span>{{ t.count }}</span></button>{% endif %}{% endfor %}
+      </div>
+      <div class="scroll">
+      <table class="inv">
+        <thead><tr><th>Invoice</th><th>Client</th><th class="num">Amount</th><th>Due</th><th>Status</th><th>Reminders</th><th class="end">Actions</th></tr></thead>
+        <tbody>
+        {% for row in rows %}
+          {% with inv=row.invoice %}
+          <tr data-groups="{{ row.groups }}">
+            <td data-label="Invoice"><span class="name">{{ row.name }}</span><span class="sub">{{ inv.number }}</span></td>
+            <td data-label="Client"><span class="client">{{ inv.client.name }}</span><span class="sub ell" title="{{ inv.client.email }}">{{ inv.client.email }}</span></td>
+            <td data-label="Amount" class="num"><b>{{ inv.total_display }}</b></td>
+            <td data-label="Due" class="nowrap">{{ inv.due_date|date:"j M Y" }}{% if row.due_note %}<span class="sub">{{ row.due_note }}</span>{% endif %}</td>
+            <td data-label="Status"><span class="chip {{ row.status_key }}">{{ row.status_label }}</span></td>
+            <td data-label="Reminders">
+              {% if inv.status == "sent" or inv.status == "paid" %}
+              <span class="dots" role="img" aria-label="Reminders: {{ row.steps_summary }}">{% for step in row.steps %}<i class="dot {{ step.state }}" title="{{ step.label }}: {{ step.state }}"></i>{% endfor %}</span>
+              {% if row.next_reminder %}<span class="sub">Next: {{ row.next_reminder.label }}, {{ row.next_reminder.date|date:"j M" }}</span>{% elif inv.status == "paid" %}<span class="sub">Stopped</span>{% else %}<span class="sub">All sent</span>{% endif %}
+              {% else %}<span class="sub none">Not started</span>{% endif %}
+            </td>
+            <td data-label="Actions" class="end">
+              <div class="acts">
+                {% if inv.status == "draft" %}<form method="post" action="{% url 'invoice-action' inv.pk 'send' %}">{% csrf_token %}<button class="mini primary">Send</button></form>{% endif %}
+                {% if inv.status == "sent" %}
+                  <form method="post" action="{% url 'invoice-action' inv.pk 'paid' %}" onsubmit="return confirm('Mark {{ inv.number }} as paid? A receipt will be emailed and reminders stop.')">{% csrf_token %}<button class="mini primary">Mark paid</button></form>
+                  <form method="post" action="{% url 'invoice-action' inv.pk 'resend' %}">{% csrf_token %}<button class="mini quiet">Resend</button></form>
+                {% endif %}
+                {% if inv.status == "draft" or inv.status == "sent" %}<form method="post" action="{% url 'invoice-action' inv.pk 'void' %}" onsubmit="return confirm('Void {{ inv.number }}? Reminders stop.')">{% csrf_token %}<button class="mini quiet danger">Void</button></form>{% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endwith %}
+        {% endfor %}
+        </tbody>
+      </table>
+      </div>
+      <p class="legend">Reminders: <i class="dot sent"></i> sent <i class="dot next"></i> next <i class="dot failed"></i> failed <i class="dot pending"></i> not yet or skipped</p>
+    {% else %}
+    <p class="empty">No invoices yet. Add your first one above and it will show up here.</p>
+    {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="section" id="built">
+  <div class="wrap">
+    <h2>Under the hood</h2>
+    <p class="muted" style="max-width:56ch">Small on purpose: your invoices stay in your own database and the emails go out through one provider.</p>
+    <div class="built">
+      <div class="built-item">
+        <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.8 6.8L12 13l8.2-6.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+        <h3>Delivered by Mailtrap</h3>
+        <p>The invoice, every reminder and the payment receipt are sent through the Mailtrap Email API.</p>
+        <a href="https://mailtrap.io">About Mailtrap &rsaquo;</a>
+      </div>
+      <div class="built-item">
+        <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6.5" rx="7.5" ry="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 6.5v11c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-11M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></span>
+        <h3>Stored in your database</h3>
+        <p>Invoices, clients and the reminder history live in your own Django database, so nothing leaves your setup.</p>
+        <a href="https://www.djangoproject.com">About Django &rsaquo;</a>
+      </div>
+      <div class="built-item">
+        <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 7L3.5 12l5 5M15.5 7l5 5-5 5M13.5 5l-3 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <h3>Open source</h3>
+        <p>Read the code, change the reminder schedule or the email templates, and run it yourself.</p>
+        <a href="https://github.com/manishgupta412/django-invoice-reminders">View on GitHub &rsaquo;</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  var form = document.getElementById('invoice-form'), btn = document.getElementById('submit-btn'), send = document.getElementById('id_send_now');
+  function label() { btn.textContent = send.checked ? 'Create & send invoice' : 'Save invoice'; }
+  send.addEventListener('change', label);
+  form.addEventListener('submit', function () {
+    if (form.checkValidity()) { btn.disabled = true; btn.textContent = btn.dataset.busy; }
+  });
+  window.addEventListener('pageshow', function (e) { if (e.persisted) { btn.disabled = false; label(); } });
+  label();
+  var tabs = document.getElementById('tabs');
+  if (tabs) {
+    tabs.hidden = false;
+    tabs.addEventListener('click', function (e) {
+      var t = e.target.closest('.tab'); if (!t) return;
+      tabs.querySelectorAll('.tab').forEach(function (b) { var on = b === t; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+      document.querySelectorAll('table.inv tbody tr').forEach(function (tr) {
+        tr.hidden = tr.dataset.groups.split(' ').indexOf(t.dataset.filter) === -1;
+      });
+    });
+  }
+})();
+</script>
+{% endblock %}

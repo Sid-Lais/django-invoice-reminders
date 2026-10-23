@@ -1,0 +1,6 @@
+{% autoescape off %}Hi {{ client.name }},
+
+This is a polite reminder that invoice {{ invoice.number }} for {{ total_display }} is due today.
+The invoice is attached for convenience. If you've already paid, thank you!
+
+{% include "emails/_footer.txt" %}{% endautoescape %}

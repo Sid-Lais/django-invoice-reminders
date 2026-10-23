@@ -1,0 +1,6 @@
+{% extends "emails/base.html" %}
+{% block heading %}Friendly heads-up: invoice due {% if days_until_due == 1 %}tomorrow{% else %}in {{ days_until_due }} days{% endif %}{% endblock %}
+{% block body %}
+<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Hi {{ client.name }},</p>
+<p style="margin:0 0 16px;font-size:15px;line-height:1.55;">Just a quick, friendly note that invoice {{ invoice.number }} for <strong>{{ total_display }}</strong> is coming up for payment on <strong>{{ invoice.due_date|date:"l, j M Y" }}</strong>. If it's already on its way, thank you – please ignore this message.</p>
+{% endblock %}

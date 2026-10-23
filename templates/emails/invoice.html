@@ -1,0 +1,6 @@
+{% extends "emails/base.html" %}
+{% block heading %}{% if is_resend %}A copy of invoice {{ invoice.number }}{% else %}New invoice {{ invoice.number }}{% endif %}{% endblock %}
+{% block body %}
+<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Hi {{ client.name }},</p>
+<p style="margin:0 0 16px;font-size:15px;line-height:1.55;">{% if is_resend %}As requested, here is another copy of invoice {{ invoice.number }}.{% else %}Thank you for your business! Please find invoice {{ invoice.number }} attached.{% endif %} The total is <strong>{{ total_display }}</strong>, due by <strong>{{ invoice.due_date|date:"j M Y" }}</strong>.</p>
+{% endblock %}

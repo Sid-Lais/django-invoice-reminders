@@ -1,0 +1,6 @@
+{% autoescape off %}Hi {{ client.name }},
+
+{% if is_resend %}As requested, here is another copy of invoice {{ invoice.number }}.{% else %}Thank you for your business! Please find invoice {{ invoice.number }} attached.{% endif %}
+The total is {{ total_display }}, due by {{ invoice.due_date|date:"j M Y" }}.
+
+{% include "emails/_footer.txt" %}{% endautoescape %}

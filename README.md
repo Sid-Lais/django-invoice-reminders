@@ -230,6 +230,65 @@ The commands print clear, formatted status output. Sensitive secrets and API tok
 
 <img src="docs/logs-webhook.png" alt="Terminal logs of curl webhook POST showing processed event and duplicate detection" width="100%">
 
+## Run with Docker
+
+Docker with the Compose plugin is the only local prerequisite:
+
+```bash
+cp .env.example .env
+# Fill in .env as described below before starting.
+docker compose up --build
+```
+
+Open http://localhost:8000/. The web container applies migrations before starting
+Gunicorn. The scheduler waits for the dashboard's health check, runs reminders
+immediately, then once an hour. Failed deliveries are logged and retried on the
+next hourly run. Both services read `.env` and share the `invoice-data` volume;
+Compose sets `SQLITE_PATH=/data/invoices.sqlite3` for both, overriding `.env`.
+The image runs as a non-root user and includes collected admin static files,
+served by WhiteNoise even when debug mode is off.
+
+For a **local demo without sending email**, set these values in `.env` (the
+other example values can stay as they are):
+
+```dotenv
+DJANGO_SECRET_KEY=local-demo-only-change-before-deploying
+DJANGO_DEBUG=false
+ALLOWED_HOSTS=localhost,127.0.0.1
+SITE_URL=http://localhost:8000
+MAILER_CLASS=invoices.services.email.FakeMailer
+MAILTRAP_API_TOKEN=demo-not-a-real-token
+MAIL_FROM_EMAIL=billing@example.com
+MAILTRAP_WEBHOOK_TOKEN=demo-not-a-real-webhook-token
+REMINDER_SEND_HOURS=0-24
+```
+
+The fake mailer builds the email payloads and records reminder history without
+contacting Mailtrap. Its in-memory outbox disappears when the command exits.
+After the dashboard is ready, run in another terminal:
+
+```bash
+docker compose exec web python manage.py seed_demo --email demo-client@example.com
+docker compose exec web python manage.py send_payment_reminders --dry-run
+docker compose exec web python manage.py send_payment_reminders
+docker compose exec web python manage.py createsuperuser  # optional admin login
+```
+
+With the fake mailer, the reminder run records four demo reminders. Repeating it
+sends none; the hourly scheduler uses the same history. For real deliveries,
+remove `MAILER_CLASS` to use Mailtrap, supply the real Mailtrap settings, restore
+your desired `REMINDER_SEND_HOURS`, and use a long random `DJANGO_SECRET_KEY`.
+Set `ALLOWED_HOSTS` to your hostnames and `SITE_URL` to the browser-visible URL
+used in links. Recreate the services after changing `.env`:
+`docker compose up -d`.
+
+`docker compose down` stops the services but keeps invoices and reminder history.
+Starting again with `docker compose up` reuses that data. **`docker compose down
+--volumes` deletes the database.** Back up the volume before destructive changes.
+Do not run a separate cron job alongside the scheduler or scale the scheduler.
+The default port is bound to loopback because the dashboard has no login; see
+[Deploying to production](#deploying-to-production) before exposing it.
+
 ## Screenshots
 
 <p align="center">
@@ -643,8 +702,8 @@ The suite has 115 tests. They need no `.env`, no credentials and no network: `co
 
 - **Settings:** set `DJANGO_DEBUG=false`, a long random `DJANGO_SECRET_KEY`, `ALLOWED_HOSTS` for your domain and `SITE_URL` to your `https://` address.
 - **Protect the dashboard:** it has no login. Put it behind a VPN, an SSH tunnel or a reverse proxy that requires authentication before you expose it. Keep `/admin/` protected too.
-- **A real server:** `manage.py runserver` is for development. Run `config.wsgi` under a WSGI server such as gunicorn, behind nginx or your platform's router. Add the server to `requirements.txt` yourself.
-- **Static files:** the dashboard's CSS is inline, so it works as is. The admin needs `python manage.py collectstatic`, and `/static/` served by your web server.
+- **A real server:** `manage.py runserver` is for development. Gunicorn is included; run `gunicorn config.wsgi:application` behind nginx or your platform's router. The Docker image starts Gunicorn automatically.
+- **Static files:** run `python manage.py collectstatic --noinput` before starting the server. WhiteNoise serves `/static/`, including the admin assets. The Docker image collects these files at build time.
 - **Disk:** SQLite needs a persistent disk. Set `SQLITE_PATH` to a volume. Serverless platforms with throwaway disks lose invoices and reminder history between runs.
 - **The scheduler:** run `send_payment_reminders` every hour from cron on the same machine, see [Scheduling](#scheduling).
 - **Mailtrap:** verify your sending domain, set `MAIL_FROM_EMAIL` on it, and add the webhook with its signing secret, see [Webhook](#webhook).

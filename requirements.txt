@@ -1,3 +1,5 @@
 Django==6.1.2
 fpdf2==2.8.9
 mailtrap==2.11.0
+gunicorn==26.2.0
+whitenoise==6.12.0

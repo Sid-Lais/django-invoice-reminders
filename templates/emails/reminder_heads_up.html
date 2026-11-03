@@ -3,4 +3,15 @@
 {% block body %}
 <p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Hi {{ client.name }},</p>
 <p style="margin:0 0 16px;font-size:15px;line-height:1.55;">Just a quick, friendly note that invoice {{ invoice.number }} for <strong>{{ total_display }}</strong> is coming up for payment on <strong>{{ invoice.due_date|date:"l, j M Y" }}</strong>. If it's already on its way, thank you – please ignore this message.</p>
+{% if invoice_url %}
+<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">
+  <a href="{{ invoice_url }}" style="color:#2563eb;font-weight:bold;">View Invoice</a>
+</p>
+{% endif %}
+
+{% if payment_url %}
+<p style="margin:0 0 16px;font-size:15px;line-height:1.55;">
+  <a href="{{ payment_url }}" style="color:#2563eb;font-weight:bold;">Pay Invoice</a>
+</p>
+{% endif %}
 {% endblock %}

@@ -5,4 +5,12 @@ We'd be grateful if you could arrange payment in the next few days.
 
 If something is holding it up – a question about the invoice, or a different payment schedule – just reply to this email and we'll sort it out together.
 
+
+{% if invoice_url %}
+View Invoice: {{ invoice_url }}
+{% endif %}
+{% if payment_url %}
+Pay Invoice: {{ payment_url }}
+{% endif %}
+
 {% include "emails/_footer.txt" %}{% endautoescape %}

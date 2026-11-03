@@ -82,6 +82,20 @@ def test_flagged_clients_are_skipped_and_nothing_recorded(make_invoice, outbox, 
     assert not ReminderLog.objects.exists()
     assert summary.skipped == 1 and summary.outcomes[0].action == "flagged"
 
+def test_disputed_invoices_are_skipped_and_no_reminder_is_sent(make_invoice, outbox):
+    invoice = make_invoice(due_date=TODAY)
+    invoice.is_disputed = True
+    invoice.save(update_fields=["is_disputed"])
+
+    summary = run_reminders(TODAY)
+
+    assert outbox == []
+    assert summary.sent == 0
+    assert summary.skipped == 1
+    assert summary.outcomes[0].action == "disputed"
+    assert "reminders are paused" in summary.outcomes[0].detail
+    assert not ReminderLog.objects.filter(invoice=invoice).exists()
+
 
 def test_missed_stages_recorded_as_skipped(make_invoice, outbox):
     invoice = make_invoice(due_date=TODAY - days(14))

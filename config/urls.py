@@ -2,7 +2,11 @@ from django.contrib import admin
 from django.urls import path
 
 from invoices import ui
-from invoices.views import mailtrap_webhook
+from invoices.views import (
+    client_invoice,
+    dispute_invoice,
+    mailtrap_webhook,
+)
 
 admin.site.site_header = "Invoice Reminders"
 admin.site.site_title = "Invoice Reminders"
@@ -14,4 +18,10 @@ urlpatterns = [
     path("invoices/<int:pk>/<str:action>/", ui.invoice_action, name="invoice-action"),
     path("admin/", admin.site.urls),
     path("webhooks/mailtrap/<str:token>/", mailtrap_webhook, name="mailtrap-webhook"),
+    path("invoice/view/<str:token>/", client_invoice, name="client-invoice"),
+    path(
+    "invoice/dispute/<str:token>/",
+    dispute_invoice,
+    name="client-invoice-dispute",
+),
 ]

@@ -10,4 +10,15 @@
   <li>Please pay the full amount within 7 days, <em>or</em></li>
   <li>Reply to this email with an expected payment date or any issue with the invoice.</li>
 </ol>
+{% if invoice_url %}
+<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">
+  <a href="{{ invoice_url }}" style="color:#2563eb;font-weight:bold;">View Invoice</a>
+</p>
+{% endif %}
+
+{% if payment_url %}
+<p style="margin:0 0 16px;font-size:15px;line-height:1.55;">
+  <a href="{{ payment_url }}" style="color:#2563eb;font-weight:bold;">Pay Invoice</a>
+</p>
+{% endif %}
 {% endblock %}

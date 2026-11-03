@@ -1,0 +1,226 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice {{ invoice.number }}</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+            margin: 0;
+            padding: 30px 15px;
+        }
+
+        .invoice {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 35px;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        }
+
+        .header, .details {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #2563eb;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th:last-child, td:last-child {
+            text-align: right;
+        }
+
+        .totals {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .total {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 7px 12px;
+            background: #e0f2fe;
+            border-radius: 20px;
+        }
+
+        .payment-section, .dispute-section {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        .pay-button {
+            display: inline-block;
+            padding: 12px 22px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .dispute-button {
+            padding: 10px 18px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .invoice {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="invoice">
+
+    <div class="header">
+        <div>
+            <h1>INVOICE</h1>
+            <p><strong>{{ invoice.number }}</strong></p>
+        </div>
+
+        <div>
+            <span class="status">{{ invoice.get_status_display }}</span>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="details">
+        <div>
+            <h3>Bill To</h3>
+            <p>{{ invoice.client.name }}</p>
+            <p>{{ invoice.client.company }}</p>
+            <p>{{ invoice.client.email }}</p>
+        </div>
+
+        <div>
+            <p><strong>Issue Date:</strong> {{ invoice.issue_date }}</p>
+            <p><strong>Due Date:</strong> {{ invoice.due_date }}</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for item in invoice.line_items.all %}
+            <tr>
+                <td>{{ item.description }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ invoice.currency }} {{ item.unit_price|floatformat:2 }}</td>
+                <td>{{ invoice.currency }} {{ item.amount|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No items available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <p>Subtotal: {{ invoice.currency }} {{ invoice.subtotal|floatformat:2 }}</p>
+        <p>Tax ({{ invoice.tax_rate }}%): {{ invoice.currency }} {{ invoice.tax_amount|floatformat:2 }}</p>
+        <p class="total">Total: {{ invoice.total_display }}</p>
+    </div>
+
+    {% if invoice.notes %}
+        <hr>
+        <h3>Notes</h3>
+        <p>{{ invoice.notes|linebreaksbr }}</p>
+    {% endif %}
+
+    <!-- Payment section -->
+    {% if payment_url and invoice.status == "sent" and not invoice.is_disputed %}
+        <section class="payment-section">
+            <h2>Payment</h2>
+            <p>Please use the link below to pay this invoice.</p>
+
+            <a href="{{ payment_url }}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="pay-button">
+                Pay Invoice
+            </a>
+        </section>
+    {% endif %}
+
+    <!-- Dispute section -->
+    {% if invoice.is_disputed %}
+        <section class="dispute-section">
+            <p><strong>This invoice is currently under dispute.</strong></p>
+        </section>
+
+    {% elif dispute_submitted %}
+        <section class="dispute-section">
+            <p><strong>Your dispute has been submitted successfully.</strong></p>
+        </section>
+
+    {% elif invoice.status == "sent" %}
+        <section class="dispute-section">
+            <h2>Dispute this invoice</h2>
+            <p>If you believe something is incorrect, you can notify the invoice owner.</p>
+
+            <form method="post" action="{% url 'client-invoice-dispute' token=token %}">
+                {% csrf_token %}
+                <button type="submit" class="dispute-button">
+                    Dispute Invoice
+                </button>
+            </form>
+        </section>
+    {% endif %}
+
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+
+</div>
+
+</body>
+</html>
+```

@@ -4,4 +4,15 @@
 {% block body %}
 <p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Hi {{ client.name }},</p>
 <p style="margin:0 0 16px;font-size:15px;line-height:1.55;">This is a polite reminder that invoice {{ invoice.number }} for <strong>{{ total_display }}</strong> is due today. The invoice is attached for convenience. If you've already paid, thank you!</p>
+{% if invoice_url %}
+<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">
+  <a href="{{ invoice_url }}" style="color:#2563eb;font-weight:bold;">View Invoice</a>
+</p>
+{% endif %}
+
+{% if payment_url %}
+<p style="margin:0 0 16px;font-size:15px;line-height:1.55;">
+  <a href="{{ payment_url }}" style="color:#2563eb;font-weight:bold;">Pay Invoice</a>
+</p>
+{% endif %}
 {% endblock %}

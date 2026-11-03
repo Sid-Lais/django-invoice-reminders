@@ -109,6 +109,18 @@ class Invoice(models.Model):
     due_date = models.DateField()
     currency = models.CharField(max_length=3, choices=Currency.choices, default=Currency.USD)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.DRAFT)
+
+    is_disputed = models.BooleanField(
+        default=False,
+        help_text="Whether the client has disputed this invoice.",
+    )
+
+    payment_url = models.URLField(
+        blank=True,
+        default="",
+        help_text="Optional payment link for this invoice.",
+    )
+
     notes = models.TextField(blank=True)
     tax_rate = models.DecimalField(
         "tax rate (%)",
@@ -134,6 +146,7 @@ class Invoice(models.Model):
     def save(self, *args, **kwargs):
         if self.number:
             return super().save(*args, **kwargs)
+
         # Auto-number; retry if a concurrent save grabbed the same number.
         for _ in range(5):
             self.number = self._next_number()
@@ -143,8 +156,9 @@ class Invoice(models.Model):
             except IntegrityError:
                 if not Invoice.objects.filter(number=self.number).exists():
                     self.number = ""
-                    raise  # not a numbering collision
+                    raise
                 self.number = ""
+
         raise IntegrityError("Could not allocate a unique invoice number.")
 
     def _next_number(self) -> str:
@@ -152,12 +166,14 @@ class Invoice(models.Model):
         prefix = f"INV-{year}-"
         pattern = re.compile(rf"^{re.escape(prefix)}(\d+)$")
         highest = 0
+
         for number in Invoice.objects.filter(number__startswith=prefix).values_list(
             "number", flat=True
         ):
             match = pattern.match(number)
             if match:
                 highest = max(highest, int(match.group(1)))
+
         return f"{prefix}{highest + 1:04d}"
 
     @property

@@ -1,3 +1,4 @@
+
 """Payment-reminder sequence.
 
 Two layers:
@@ -6,9 +7,9 @@ Two layers:
   invoice was sent, "today" and which stages are already logged, it decides
   which single stage (if any) to send and which missed stages to skip.
 * `run_reminders()` applies that plan to every sent invoice, claiming each
-  stage with a ReminderLog row *before* sending so a stage is never sent twice.
+  stage with a ReminderLog row before sending so a stage is never sent twice.
 
-"Today" is the *client's* local date (Client.time_zone), never the UTC date,
+"Today" is the client's local date (Client.time_zone), never the UTC date,
 and reminders are only sent while the client's local time is inside
 settings.REMINDER_SEND_HOURS. Passing an explicit `today` (the --date flag)
 uses that date for every client and ignores the send window.
@@ -19,6 +20,8 @@ from __future__ import annotations
 import datetime
 import logging
 from dataclasses import dataclass, field
+
+from .signed_links import invoice_url
 
 from django.conf import settings
 from django.db import IntegrityError, transaction
@@ -49,8 +52,10 @@ def get_stages(config: list[dict] | None = None) -> list[Stage]:
     config = settings.REMINDER_STAGES if config is None else config
     stages = [Stage(**item) for item in config]
     keys = [stage.key for stage in stages]
+
     if len(keys) != len(set(keys)):
         raise ValueError("REMINDER_STAGES keys must be unique.")
+
     return sorted(stages, key=lambda stage: stage.offset_days)
 
 
@@ -84,12 +89,22 @@ def plan_stages(
         if stage.date_for(due_date) <= today
         and (stage.key not in logged or logged[stage.key] in RETRYABLE)
     ]
+
     covered: list[Stage] = []
+
     if sent_date is not None:
-        covered = [s for s in candidates if s.date_for(due_date) <= sent_date]
-        candidates = [s for s in candidates if s.date_for(due_date) > sent_date]
+        covered = [
+            stage for stage in candidates
+            if stage.date_for(due_date) <= sent_date
+        ]
+        candidates = [
+            stage for stage in candidates
+            if stage.date_for(due_date) > sent_date
+        ]
+
     if not candidates:
         return StagePlan(send=None, skip=covered)
+
     return StagePlan(send=candidates[-1], skip=covered + candidates[:-1])
 
 
@@ -104,18 +119,22 @@ class InvoiceOutcome:
 
     def describe(self) -> str:
         parts = [f"{self.invoice:<16} {self.email:<32} {self.action.upper()}"]
+
         if self.stage:
             parts.append(self.stage)
+
         if self.skipped:
             parts.append(f"(skipped: {', '.join(self.skipped)})")
+
         if self.detail:
             parts.append(f"- {self.detail}")
+
         return " ".join(parts)
 
 
 @dataclass
 class RunSummary:
-    today: datetime.date | None  # None = each client's own local date
+    today: datetime.date | None
     now: datetime.datetime
     dry_run: bool = False
     checked: int = 0
@@ -126,13 +145,21 @@ class RunSummary:
     outcomes: list[InvoiceOutcome] = field(default_factory=list)
 
 
-def in_send_window(local_time: datetime.datetime, window: tuple[int, int] | None = None) -> bool:
+def in_send_window(
+    local_time: datetime.datetime,
+    window: tuple[int, int] | None = None,
+) -> bool:
     start, end = window or settings.REMINDER_SEND_HOURS
     return start <= local_time.hour < end
 
 
-def build_reminder_message(invoice: Invoice, stage: Stage, today: datetime.date):
+def build_reminder_message(
+    invoice: Invoice,
+    stage: Stage,
+    today: datetime.date,
+):
     days_overdue = invoice.days_overdue_on(today)
+
     subject = stage.subject.format(
         number=invoice.number,
         due_date=invoice.due_date.strftime("%d %b %Y"),
@@ -140,17 +167,24 @@ def build_reminder_message(invoice: Invoice, stage: Stage, today: datetime.date)
         business_name=settings.BUSINESS_NAME,
         days_overdue=days_overdue,
     )
+
     context = email_context(
         invoice,
         stage=stage,
         today=today,
         days_overdue=days_overdue,
         days_until_due=(invoice.due_date - today).days,
-    )
-    return build_message(
-        invoice, template=stage.template, subject=subject, category=stage.category, context=context
+        invoice_url=invoice_url(invoice.pk),
+        payment_url=invoice.payment_url or settings.PAYMENT_URL,
     )
 
+    return build_message(
+        invoice,
+        template=stage.template,
+        subject=subject,
+        category=stage.category,
+        context=context,
+    )
 
 def _mark_skipped(invoice: Invoice, stage: Stage, reason: str) -> None:
     log, created = ReminderLog.objects.get_or_create(
@@ -162,15 +196,24 @@ def _mark_skipped(invoice: Invoice, stage: Stage, reason: str) -> None:
             "error": reason,
         },
     )
+
     if not created and log.status in RETRYABLE:
-        ReminderLog.objects.filter(pk=log.pk, status=log.status).update(
-            status=ReminderLog.Status.SKIPPED, error=f"{reason} (previous error: {log.error})"
+        ReminderLog.objects.filter(
+            pk=log.pk,
+            status=log.status,
+        ).update(
+            status=ReminderLog.Status.SKIPPED,
+            error=f"{reason} (previous error: {log.error})",
         )
 
 
 def _claim(invoice: Invoice, stage: Stage) -> ReminderLog | None:
     """Atomically take ownership of (invoice, stage). None = someone else has it."""
-    existing = ReminderLog.objects.filter(invoice=invoice, stage=stage.key).first()
+    existing = ReminderLog.objects.filter(
+        invoice=invoice,
+        stage=stage.key,
+    ).first()
+
     if existing is None:
         try:
             with transaction.atomic():
@@ -182,14 +225,17 @@ def _claim(invoice: Invoice, stage: Stage) -> ReminderLog | None:
                 )
         except IntegrityError:
             return None
+
     if existing.status in RETRYABLE:
-        # Conditional UPDATE: only one concurrent runner can flip failed -> pending.
-        claimed = ReminderLog.objects.filter(pk=existing.pk, status=existing.status).update(
-            status=ReminderLog.Status.PENDING
-        )
+        claimed = ReminderLog.objects.filter(
+            pk=existing.pk,
+            status=existing.status,
+        ).update(status=ReminderLog.Status.PENDING)
+
         if claimed:
             existing.refresh_from_db()
             return existing
+
     return None
 
 
@@ -204,7 +250,19 @@ def process_invoice(
 ) -> InvoiceOutcome:
     """Process one invoice. `today` is the client's local date; `local_time`,
     when given, is the client's local time and enforces the send window."""
-    outcome = InvoiceOutcome(invoice=invoice.number, email=invoice.client.email, action="nothing")
+
+    outcome = InvoiceOutcome(
+        invoice=invoice.number,
+        email=invoice.client.email,
+        action="nothing",
+    )
+
+    # Disputed invoices must not receive further reminders.
+    if invoice.is_disputed:
+        outcome.action = "disputed"
+        outcome.detail = "invoice is disputed; reminders are paused"
+        summary.skipped += 1
+        return outcome
 
     if invoice.client.is_email_flagged:
         logger.warning(
@@ -218,19 +276,31 @@ def process_invoice(
         summary.skipped += 1
         return outcome
 
-    logged = {log.stage: log.status for log in invoice.reminder_logs.all()}
-    sent_date = invoice.client.local_date(invoice.sent_at) if invoice.sent_at else None
+    logged = {
+        log.stage: log.status
+        for log in invoice.reminder_logs.all()
+    }
+
+    sent_date = (
+        invoice.client.local_date(invoice.sent_at)
+        if invoice.sent_at
+        else None
+    )
+
     plan = plan_stages(
-        due_date=invoice.due_date, sent_date=sent_date, today=today, stages=stages, logged=logged
+        due_date=invoice.due_date,
+        sent_date=sent_date,
+        today=today,
+        stages=stages,
+        logged=logged,
     )
 
     if plan.send and local_time is not None and not in_send_window(local_time):
-        # Due, but it's outside working hours where the client is: a later
-        # (hourly) run picks it up. Nothing is written yet.
         start, end = settings.REMINDER_SEND_HOURS
         outcome.action, outcome.stage = "waiting", plan.send.key
         outcome.detail = (
-            f"{local_time:%H:%M} in {invoice.client.time_zone}; sends between {start:02d}:00 and {end:02d}:00"
+            f"{local_time:%H:%M} in {invoice.client.time_zone}; "
+            f"sends between {start:02d}:00 and {end:02d}:00"
         )
         summary.waiting += 1
         return outcome
@@ -256,13 +326,18 @@ def process_invoice(
 
     stage = plan.send
     outcome.stage = stage.key
+
     log = _claim(invoice, stage)
+
     if log is None:
         outcome.detail = "already claimed by another run"
         return outcome
 
     # The invoice may have been paid/voided since the queryset was evaluated.
-    if not Invoice.objects.filter(pk=invoice.pk, status=Invoice.Status.SENT).exists():
+    if not Invoice.objects.filter(
+        pk=invoice.pk,
+        status=Invoice.Status.SENT,
+    ).exists():
         log.status = ReminderLog.Status.SKIPPED
         log.error = "Invoice is no longer in sent status."
         log.save(update_fields=["status", "error"])
@@ -270,12 +345,22 @@ def process_invoice(
         return outcome
 
     try:
-        result = mailer_factory().send(build_reminder_message(invoice, stage, today))
-    except Exception as exc:  # any failure must leave a retryable row, never "pending"
+        result = mailer_factory().send(
+            build_reminder_message(invoice, stage, today)
+        )
+    except Exception as exc:
+        # Any failure must leave a retryable row, never "pending".
         log.status = ReminderLog.Status.FAILED
         log.error = str(exc) or type(exc).__name__
         log.save(update_fields=["status", "error"])
-        logger.error("Reminder %s for %s failed: %s", stage.key, invoice.number, log.error)
+
+        logger.error(
+            "Reminder %s for %s failed: %s",
+            stage.key,
+            invoice.number,
+            log.error,
+        )
+
         summary.failed += 1
         outcome.action, outcome.detail = "failed", log.error
         return outcome
@@ -284,7 +369,11 @@ def process_invoice(
     log.sent_at = timezone.now()
     log.message_id = result.message_id
     log.error = ""
-    log.save(update_fields=["status", "sent_at", "message_id", "error"])
+
+    log.save(
+        update_fields=["status", "sent_at", "message_id", "error"]
+    )
+
     summary.sent += 1
     outcome.action = "sent"
     return outcome
@@ -305,7 +394,11 @@ def run_reminders(
     """
     now = now or timezone.now()
     stages = stages if stages is not None else get_stages()
-    summary = RunSummary(today=today, now=now, dry_run=dry_run)
+    summary = RunSummary(
+        today=today,
+        now=now,
+        dry_run=dry_run,
+    )
 
     cached: list[Mailer] = [mailer] if mailer else []
 
@@ -320,13 +413,16 @@ def run_reminders(
         .prefetch_related("line_items", "reminder_logs")
         .order_by("due_date", "id")
     )
+
     for invoice in invoices:
         summary.checked += 1
+
         if today is not None:
             local_today, local_time = today, None
         else:
             local_time = invoice.client.local_now(now)
             local_today = local_time.date()
+
         summary.outcomes.append(
             process_invoice(
                 invoice,
@@ -337,4 +433,5 @@ def run_reminders(
                 mailer_factory=mailer_factory,
             )
         )
+
     return summary

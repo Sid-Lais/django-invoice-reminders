@@ -3,4 +3,12 @@
 Just a quick, friendly note that invoice {{ invoice.number }} for {{ total_display }} is coming up for payment on {{ invoice.due_date|date:"l, j M Y" }}.
 If it's already on its way, thank you – please ignore this message.
 
+
+{% if invoice_url %}
+View Invoice: {{ invoice_url }}
+{% endif %}
+{% if payment_url %}
+Pay Invoice: {{ payment_url }}
+{% endif %}
+
 {% include "emails/_footer.txt" %}{% endautoescape %}
